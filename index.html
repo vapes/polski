@@ -306,28 +306,31 @@
 				transform: translateY(-1px);
 			}
 
-			.tooltip {
-				position: absolute;
-				bottom: 100%;
-				left: 50%;
-				transform: translateX(-50%);
-				background: white;
-				color: #333;
-				padding: 15px;
-				border-radius: 8px;
-				font-size: 0.9rem;
-				white-space: normal;
-				opacity: 0;
-				visibility: hidden;
-				transition: all 0.3s ease;
-				z-index: 99999;
-				margin-bottom: 10px;
-				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+			.hints-info {
+				margin: 15px 0;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+
+			.hint-block {
+				background: #f8f9fa;
 				border: 1px solid #dee2e6;
-				max-width: 300px;
-				min-width: 250px;
-				max-height: 60vh;
-				overflow-y: auto;
+				border-radius: 8px;
+				padding: 15px;
+				font-size: 0.9rem;
+				line-height: 1.4;
+				display: none;
+			}
+
+			.hint-block.active {
+				display: block;
+			}
+
+			.hint-block h4 {
+				margin: 0 0 8px 0;
+				color: #007bff;
+				font-size: 1rem;
 			}
 
 			.tooltip::after {
@@ -381,10 +384,15 @@
 
 				.container {
 					border-radius: 15px;
+					display: flex;
+					flex-direction: column;
+					min-height: 100vh;
 				}
 
 				.header {
 					padding: 20px 15px;
+					order: 2;
+					margin-top: auto;
 				}
 
 				.header h1 {
@@ -397,7 +405,8 @@
 				}
 
 				.controls {
-					padding: 20px 15px;
+					padding: 10px 15px;
+					order: 1;
 				}
 
 				/* Скрываем кнопки на мобильных */
@@ -414,16 +423,17 @@
 				.case-selector {
 					flex-direction: column;
 					align-items: center;
-					gap: 10px;
+					gap: 5px;
 				}
 
 				.exercise-area {
-					padding: 20px 15px;
+					padding: 10px 15px;
+					order: 1;
 				}
 
 				.word-display {
-					padding: 20px 15px;
-					margin-bottom: 15px;
+					padding: 15px;
+					margin-bottom: 10px;
 				}
 
 				.word-display h3 {
@@ -432,16 +442,19 @@
 				}
 
 				.words-line {
-					flex-direction: column;
-					gap: 8px;
+					flex-direction: row;
+					flex-wrap: wrap;
+					gap: 5px;
 					margin-bottom: 10px;
+					justify-content: center;
 				}
 
 				.word {
-					font-size: 1.2rem;
-					padding: 8px 12px;
-					width: 100%;
-					max-width: 280px;
+					font-size: 1rem;
+					padding: 6px 8px;
+					width: auto;
+					max-width: none;
+					flex: 0 0 auto;
 				}
 
 				.input-group {
@@ -454,33 +467,19 @@
 				}
 
 				.hints-section {
-					flex-direction: column;
-					align-items: center;
-					gap: 10px;
+					flex-direction: row;
+					flex-wrap: wrap;
+					justify-content: center;
+					gap: 8px;
 					margin: 10px 0;
 				}
 
 				.hint-btn {
-					width: 100%;
-					max-width: 200px;
-					padding: 12px 16px;
-					font-size: 0.9rem;
-				}
-
-				.tooltip {
-					position: fixed;
-					bottom: 20px;
-					top: auto;
-					left: 50%;
-					transform: translateX(-50%);
-					width: 90%;
-					max-width: 350px;
-					white-space: normal;
-					text-align: center;
-					z-index: 99999;
-					padding: 20px;
-					max-height: 60vh;
-					overflow-y: auto;
+					width: auto;
+					max-width: none;
+					padding: 8px 12px;
+					font-size: 0.85rem;
+					flex: 0 0 auto;
 				}
 
 				.tooltip::after {
@@ -547,6 +546,7 @@
 
 				.header {
 					padding: 15px 10px;
+					order: 2;
 				}
 
 				.header h1 {
@@ -570,8 +570,17 @@
 				}
 
 				.word {
-					font-size: 1.1rem;
-					padding: 6px 10px;
+					font-size: 0.9rem;
+					padding: 4px 6px;
+				}
+
+				.hints-section {
+					gap: 5px;
+				}
+
+				.hint-btn {
+					padding: 6px 8px;
+					font-size: 0.8rem;
 				}
 
 				.case-select {
@@ -633,29 +642,47 @@
 					flex-direction: row;
 					flex-wrap: wrap;
 					justify-content: center;
+					gap: 8px;
 				}
 
 				.word {
 					width: auto;
 					max-width: none;
+					font-size: 1.1rem;
+					padding: 8px 10px;
 				}
 
 				.hints-section {
 					flex-direction: row;
 					flex-wrap: wrap;
 					justify-content: center;
+					gap: 10px;
 				}
 
 				.hint-btn {
 					width: auto;
 					max-width: none;
+					padding: 10px 14px;
+					font-size: 0.9rem;
+				}
+
+				.hints-info {
+					flex-direction: row;
+					flex-wrap: wrap;
+					justify-content: center;
+				}
+
+				.hint-block {
+					flex: 1;
+					min-width: 200px;
+					max-width: 300px;
 				}
 			}
 		</style>
 	</head>
 	<body>
 		<div class="container">
-			<div class="header">
+			<div class="header" id="header">
 				<h1>🇵🇱 Изучение польского языка</h1>
 				<p>
 					Вам будут показаны глагол, прилагательное и существительное в инфинитиве. Определите падеж по
@@ -699,18 +726,15 @@
 				</div>
 
 				<div class="hints-section" id="hintsSection" style="display: none">
-					<button class="hint-btn" id="caseHintBtn">
-						💡 Падеж
-						<div class="tooltip" id="caseTooltip">Наведите для подсказки</div>
-					</button>
-					<button class="hint-btn" id="questionHintBtn">
-						❓ Вопрос
-						<div class="tooltip" id="questionTooltip">Наведите для подсказки</div>
-					</button>
-					<button class="hint-btn" id="ruleHintBtn">
-						📚 Правило
-						<div class="tooltip" id="ruleTooltip">Наведите для подсказки</div>
-					</button>
+					<button class="hint-btn" id="caseHintBtn">💡 Падеж</button>
+					<button class="hint-btn" id="questionHintBtn">❓ Вопрос</button>
+					<button class="hint-btn" id="ruleHintBtn">📚 Правило</button>
+				</div>
+
+				<div class="hints-info" id="hintsInfo" style="display: none">
+					<div class="hint-block" id="caseHintBlock"></div>
+					<div class="hint-block" id="questionHintBlock"></div>
+					<div class="hint-block" id="ruleHintBlock"></div>
 				</div>
 
 				<div class="result" id="result"></div>
@@ -745,23 +769,27 @@
 				// Добавляем обработчик для кнопки смешанного режима
 				document.getElementById('mixedBtn').addEventListener('click', selectMixedMode);
 
-				// Добавляем обработчик для выпадающего списка
-				document.getElementById('caseSelect').addEventListener('change', function () {
-					const selectedCase = this.value;
-					if (selectedCase) {
-						if (selectedCase === 'mixed') {
-							selectMixedMode();
-						} else {
-							selectCase(selectedCase);
-						}
-						// Возвращаем к смешанному режиму по умолчанию
-						this.value = 'mixed';
-					}
-				});
-
 				// Автоматически выбираем смешанный режим при загрузке
 				selectMixedMode();
 			}
+
+			// Добавляем обработчик для выпадающего списка после загрузки DOM
+			document.addEventListener('DOMContentLoaded', function () {
+				const caseSelect = document.getElementById('caseSelect');
+				if (caseSelect) {
+					caseSelect.addEventListener('change', function () {
+						const selectedCase = this.value;
+						if (selectedCase) {
+							if (selectedCase === 'mixed') {
+								selectMixedMode();
+							} else {
+								selectCase(selectedCase);
+							}
+							// НЕ возвращаем к смешанному режиму - оставляем выбранный падеж
+						}
+					});
+				}
+			});
 
 			function selectCase(caseName) {
 				// Убираем активный класс со всех кнопок
@@ -776,7 +804,7 @@
 				// Обновляем выпадающий список
 				const caseSelect = document.getElementById('caseSelect');
 				if (caseSelect) {
-					caseSelect.value = '';
+					caseSelect.value = caseName;
 				}
 
 				currentCase = caseName;
@@ -884,6 +912,7 @@
 
 				document.getElementById('wordDisplay').style.display = 'block';
 				document.getElementById('hintsSection').style.display = 'flex';
+				document.getElementById('hintsInfo').style.display = 'flex';
 				document.getElementById('result').style.display = 'none';
 
 				// Устанавливаем глагол как текст в поле ввода с пробелом после
@@ -901,13 +930,17 @@
 
 			function updateHints(currentWord, caseData) {
 				// Обновляем подсказку падежа
-				document.getElementById('caseTooltip').textContent = caseData.name;
+				document.getElementById('caseHintBlock').innerHTML = `<h4>💡 Падеж</h4>${caseData.name}`;
 
 				// Обновляем подсказку вопроса (вопросы на польском)
-				document.getElementById('questionTooltip').textContent = getCaseQuestions(caseData.name);
+				document.getElementById('questionHintBlock').innerHTML = `<h4>❓ Вопрос</h4>${getCaseQuestions(
+					caseData.name
+				)}`;
 
 				// Обновляем подсказку правила (окончания) - используем innerHTML для таблицы
-				document.getElementById('ruleTooltip').innerHTML = getCaseEndings(caseData.name);
+				document.getElementById('ruleHintBlock').innerHTML = `<h4>📚 Правило</h4>${getCaseEndings(
+					caseData.name
+				)}`;
 			}
 
 			function getCaseQuestions(caseName) {
@@ -1153,6 +1186,34 @@
 					});
 				}, 300);
 			});
+
+			// Обработчики для кнопок подсказок
+			document.getElementById('caseHintBtn').addEventListener('click', function () {
+				toggleHint('caseHintBlock');
+			});
+
+			document.getElementById('questionHintBtn').addEventListener('click', function () {
+				toggleHint('questionHintBlock');
+			});
+
+			document.getElementById('ruleHintBtn').addEventListener('click', function () {
+				toggleHint('ruleHintBlock');
+			});
+
+			function toggleHint(hintId) {
+				const hintBlock = document.getElementById(hintId);
+				const isActive = hintBlock.classList.contains('active');
+
+				// Скрываем все блоки подсказок
+				document.querySelectorAll('.hint-block').forEach((block) => {
+					block.classList.remove('active');
+				});
+
+				// Показываем выбранный блок, если он не был активен
+				if (!isActive) {
+					hintBlock.classList.add('active');
+				}
+			}
 		</script>
 	</body>
 </html>
