@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pl">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Изучение польского языка - Падежи</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				min-height: 100vh;
+				padding: 20px;
+			}
+
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+				background: white;
+				border-radius: 20px;
+				box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+				overflow: hidden;
+			}
+
+			.header {
+				background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+				color: white;
+				padding: 30px;
+				text-align: center;
+			}
+
+			.header h1 {
+				font-size: 2.5rem;
+				margin-bottom: 10px;
+				text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+			}
+
+			.header p {
+				font-size: 1.2rem;
+				opacity: 0.9;
+			}
+
+			.controls {
+				padding: 30px;
+				background: #f8f9fa;
+				border-bottom: 1px solid #e9ecef;
+			}
+
+			.case-selector {
+				display: flex;
+				gap: 15px;
+				flex-wrap: wrap;
+				justify-content: center;
+				margin-bottom: 20px;
+			}
+
+			.case-btn {
+				padding: 12px 24px;
+				border: none;
+				border-radius: 25px;
+				background: #007bff;
+				color: white;
+				cursor: pointer;
+				font-size: 1rem;
+				transition: all 0.3s ease;
+				box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+			}
+
+			.case-btn:hover {
+				background: #0056b3;
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+			}
+
+			.case-btn.active {
+				background: #28a745;
+				box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+			}
+
+			.mixed-btn {
+				padding: 12px 24px;
+				border: none;
+				border-radius: 25px;
+				background: #007bff;
+				color: white;
+				cursor: pointer;
+				font-size: 1rem;
+				transition: all 0.3s ease;
+				box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+			}
+
+			.mixed-btn:hover {
+				background: #0056b3;
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+			}
+
+			.mixed-btn.active {
+				background: #28a745;
+				box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+			}
+
+			.exercise-area {
+				padding: 40px;
+				text-align: center;
+			}
+
+			.word-display {
+				background: #f8f9fa;
+				padding: 30px;
+				border-radius: 15px;
+				margin-bottom: 20px;
+				border: 2px solid #e9ecef;
+			}
+
+			.word-display h3 {
+				color: #495057;
+				margin-bottom: 15px;
+				font-size: 1.3rem;
+			}
+
+			.words-line {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 20px;
+				flex-wrap: wrap;
+				margin-bottom: 15px;
+			}
+
+			.word {
+				font-size: 1.5rem;
+				font-weight: bold;
+				color: #007bff;
+				padding: 10px 15px;
+				background: white;
+				border-radius: 10px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			}
+
+			.input-section {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 15px;
+				margin-bottom: 20px;
+			}
+
+			.input-group {
+				text-align: center;
+				width: 100%;
+				max-width: 600px;
+				position: relative;
+				margin: 0 auto;
+			}
+
+			.input-group label {
+				display: block;
+				margin-bottom: 8px;
+				font-weight: bold;
+				color: #495057;
+				font-size: 1.1rem;
+			}
+
+			.input-group input {
+				width: 100%;
+				padding: 15px;
+				border: 2px solid #e9ecef;
+				border-radius: 10px;
+				font-size: 1.1rem;
+				transition: border-color 0.3s ease;
+				text-align: center;
+			}
+
+			.input-group input:focus {
+				outline: none;
+				border-color: #007bff;
+				box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+			}
+
+			.error-icon {
+				position: absolute;
+				right: 15px;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 20px;
+				height: 20px;
+				background: #dc3545;
+				border-radius: 50%;
+				display: none;
+				align-items: center;
+				justify-content: center;
+				color: white;
+				font-size: 12px;
+				font-weight: bold;
+			}
+
+			.hints-section {
+				display: flex;
+				gap: 15px;
+				justify-content: center;
+				margin: 15px 0;
+			}
+
+			.hint-btn {
+				background: #17a2b8;
+				color: white;
+				border: none;
+				padding: 10px 20px;
+				border-radius: 20px;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				position: relative;
+			}
+
+			.hint-btn:hover {
+				background: #138496;
+				transform: translateY(-1px);
+			}
+
+			.tooltip {
+				position: absolute;
+				bottom: 100%;
+				left: 50%;
+				transform: translateX(-50%);
+				background: #333;
+				color: white;
+				padding: 10px 15px;
+				border-radius: 8px;
+				font-size: 0.9rem;
+				white-space: nowrap;
+				opacity: 0;
+				visibility: hidden;
+				transition: all 0.3s ease;
+				z-index: 1000;
+				margin-bottom: 10px;
+			}
+
+			.tooltip::after {
+				content: '';
+				position: absolute;
+				top: 100%;
+				left: 50%;
+				transform: translateX(-50%);
+				border: 5px solid transparent;
+				border-top-color: #333;
+			}
+
+			.hint-btn:hover .tooltip {
+				opacity: 1;
+				visibility: visible;
+			}
+
+			.result {
+				margin: 15px 0;
+				padding: 20px;
+				border-radius: 10px;
+				font-size: 1.1rem;
+				display: none;
+			}
+
+			.result.correct {
+				background: #d4edda;
+				color: #155724;
+				border: 1px solid #c3e6cb;
+			}
+
+			.result.incorrect {
+				background: #f8d7da;
+				color: #721c24;
+				border: 1px solid #f5c6cb;
+			}
+
+			.stats {
+				background: #e9ecef;
+				padding: 20px;
+				border-radius: 10px;
+				margin-top: 20px;
+				display: flex;
+				justify-content: space-around;
+				flex-wrap: wrap;
+				gap: 15px;
+			}
+
+			.stat-item {
+				text-align: center;
+			}
+
+			.stat-number {
+				font-size: 2rem;
+				font-weight: bold;
+				color: #007bff;
+			}
+
+			.stat-label {
+				color: #6c757d;
+				font-size: 0.9rem;
+			}
+
+			@media (max-width: 768px) {
+				.words-line {
+					flex-direction: column;
+					gap: 10px;
+				}
+
+				.case-selector {
+					flex-direction: column;
+					align-items: center;
+				}
+
+				.header h1 {
+					font-size: 2rem;
+				}
+
+				.hints-section {
+					flex-direction: column;
+					align-items: center;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1>🇵🇱 Изучение польского языка</h1>
+				<p>Упражнения на падежи - тренируйте склонение слов!</p>
+			</div>
+
+			<div class="controls">
+				<div class="case-selector">
+					<button class="case-btn" data-case="dopelniacz">Dopełniacz (Родительный)</button>
+					<button class="case-btn" data-case="celownik">Celownik (Дательный)</button>
+					<button class="case-btn" data-case="biernik">Biernik (Винительный)</button>
+					<button class="case-btn" data-case="narzednik">Narzędnik (Творительный)</button>
+					<button class="case-btn" data-case="miejscownik">Miejscownik (Местный)</button>
+					<button class="case-btn" data-case="wolacz">Wołacz (Звательный)</button>
+					<button class="mixed-btn" id="mixedBtn">🔄 Изучать все падежи в перемешку</button>
+				</div>
+			</div>
+
+			<div class="exercise-area">
+				<div class="word-display" id="wordDisplay" style="display: none">
+					<div class="words-line">
+						<div class="word" id="verb">Глагол</div>
+						<div class="word" id="adjective">Прилагательное</div>
+						<div class="word" id="noun">Существительное</div>
+					</div>
+					<div class="input-group">
+						<input type="text" id="answerInput" placeholder="" />
+						<div class="error-icon" id="errorIcon">!</div>
+					</div>
+				</div>
+
+				<div class="hints-section" id="hintsSection" style="display: none">
+					<button class="hint-btn" id="caseHintBtn">
+						💡 Падеж
+						<div class="tooltip" id="caseTooltip">Наведите для подсказки</div>
+					</button>
+					<button class="hint-btn" id="questionHintBtn">
+						❓ Вопрос
+						<div class="tooltip" id="questionTooltip">Наведите для подсказки</div>
+					</button>
+					<button class="hint-btn" id="ruleHintBtn">
+						📚 Правило
+						<div class="tooltip" id="ruleTooltip">Наведите для подсказки</div>
+					</button>
+				</div>
+
+				<div class="result" id="result"></div>
+
+				<div class="stats" id="stats" style="display: none">
+					<div class="stat-item">
+						<div class="stat-number" id="correctCount">0</div>
+						<div class="stat-label">Правильно</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-number" id="incorrectCount">0</div>
+						<div class="stat-label">Неправильно</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-number" id="totalCount">0</div>
+						<div class="stat-label">Всего</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-number" id="accuracy">0%</div>
+						<div class="stat-label">Точность</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="words-database.js"></script>
+		<script>
+			let currentCase = null;
+			let isMixedMode = false;
+			let availableWords = [];
+			let currentAttempts = 0;
+			let stats = {
+				correct: 0,
+				incorrect: 0,
+				total: 0
+			};
+
+			// Инициализация
+			document.addEventListener('DOMContentLoaded', function () {
+				initializeApp();
+			});
+
+			function initializeApp() {
+				// Добавляем обработчики для кнопок падежей
+				document.querySelectorAll('.case-btn').forEach((btn) => {
+					btn.addEventListener('click', function () {
+						selectCase(this.dataset.case);
+					});
+				});
+
+				// Добавляем обработчик для кнопки смешанного режима
+				document.getElementById('mixedBtn').addEventListener('click', selectMixedMode);
+
+				// Показываем статистику
+				document.getElementById('stats').style.display = 'flex';
+				updateStats();
+
+				// Автоматически выбираем смешанный режим при загрузке
+				selectMixedMode();
+			}
+
+			function selectCase(caseName) {
+				// Убираем активный класс со всех кнопок
+				document.querySelectorAll('.case-btn').forEach((btn) => {
+					btn.classList.remove('active');
+				});
+				document.getElementById('mixedBtn').classList.remove('active');
+
+				// Добавляем активный класс к выбранной кнопке
+				document.querySelector(`[data-case="${caseName}"]`).classList.add('active');
+
+				currentCase = caseName;
+				isMixedMode = false;
+				currentAttempts = 0;
+
+				// Инициализируем доступные слова для выбранного падежа
+				availableWords = [...extendedWordDatabase[caseName].examples];
+				shuffleArray(availableWords);
+
+				// Показываем упражнение
+				showExercise();
+			}
+
+			function selectMixedMode() {
+				// Убираем активный класс со всех кнопок падежей
+				document.querySelectorAll('.case-btn').forEach((btn) => {
+					btn.classList.remove('active');
+				});
+
+				// Добавляем активный класс к кнопке смешанного режима
+				document.getElementById('mixedBtn').classList.add('active');
+
+				isMixedMode = true;
+				currentCase = null;
+				currentAttempts = 0;
+
+				// Создаем массив всех слов из всех падежей
+				availableWords = [];
+				Object.keys(extendedWordDatabase).forEach((caseName) => {
+					extendedWordDatabase[caseName].examples.forEach((word) => {
+						availableWords.push({
+							...word,
+							caseName: caseName,
+							caseInfo: extendedWordDatabase[caseName]
+						});
+					});
+				});
+
+				// Перемешиваем слова
+				shuffleArray(availableWords);
+
+				showExercise();
+			}
+
+			function shuffleArray(array) {
+				const shuffled = [...array];
+				for (let i = shuffled.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+				}
+				return shuffled;
+			}
+
+			let currentWord = null; // Глобальная переменная для текущего слова
+
+			function showExercise() {
+				if (availableWords.length === 0) {
+					// Если все слова пройдены, начинаем новый цикл
+					if (isMixedMode) {
+						// Перемешиваем все слова заново
+						Object.keys(extendedWordDatabase).forEach((caseName) => {
+							extendedWordDatabase[caseName].examples.forEach((word) => {
+								availableWords.push({
+									...word,
+									caseName: caseName,
+									caseInfo: extendedWordDatabase[caseName]
+								});
+							});
+						});
+						shuffleArray(availableWords);
+						alert('Поздравляем! Вы прошли все слова. Начинаем новый цикл! 🎊');
+					} else {
+						// Перемешиваем слова для выбранного падежа заново
+						availableWords = [...extendedWordDatabase[currentCase].examples];
+						shuffleArray(availableWords);
+						alert('Поздравляем! Вы прошли все слова для этого падежа. Начинаем новый цикл! 🎊');
+					}
+				}
+
+				// Выбираем случайное слово из доступных
+				const randomIndex = Math.floor(Math.random() * availableWords.length);
+				currentWord = availableWords[randomIndex]; // Сохраняем в глобальную переменную
+				const caseData = isMixedMode ? currentWord.caseInfo : extendedWordDatabase[currentCase];
+
+				document.getElementById('verb').textContent = currentWord.verb;
+				document.getElementById('adjective').textContent = currentWord.adjective;
+				document.getElementById('noun').textContent = currentWord.noun;
+
+				// Обновляем подсказки
+				updateHints(currentWord, caseData);
+
+				// Скрываем иконку ошибки
+				document.getElementById('errorIcon').style.display = 'none';
+
+				// Сбрасываем счетчик попыток
+				currentAttempts = 0;
+
+				document.getElementById('wordDisplay').style.display = 'block';
+				document.getElementById('hintsSection').style.display = 'flex';
+				document.getElementById('result').style.display = 'none';
+
+				// Устанавливаем глагол как текст в поле ввода с пробелом после
+				document.getElementById('answerInput').value = currentWord.verb + ' ';
+				document.getElementById('answerInput').focus();
+			}
+
+			function updateHints(currentWord, caseData) {
+				// Обновляем подсказку падежа
+				document.getElementById('caseTooltip').textContent = caseData.name;
+
+				// Обновляем подсказку вопроса (старое правило)
+				document.getElementById('questionTooltip').textContent = caseData.description;
+
+				// Обновляем подсказку правила (окончания)
+				document.getElementById('ruleTooltip').textContent = getCaseEndings(caseData.name);
+			}
+
+			function getCaseEndings(caseName) {
+				const endings = {
+					Dopełniacz: 'Окончания: -a, -u, -i, -y, -ów, -i, -ów',
+					Celownik: 'Окончания: -owi, -u, -om, -om',
+					Biernik: 'Окончания: -a, -ę, -ów, -e, -ów, -i',
+					Narzędnik: 'Окончания: -em, -ą, -ami, -ami',
+					Miejscownik: 'Окончания: -ie, -u, -ach, -ach',
+					Wołacz: 'Окончания: -e, -u, -y, -owie, -owie'
+				};
+				return endings[caseName] || 'Окончания для данного падежа';
+			}
+
+			function checkAnswer() {
+				const answerInput = document.getElementById('answerInput').value.trim().toLowerCase();
+
+				// Используем глобальную переменную currentWord
+				const caseData = isMixedMode ? currentWord.caseInfo : extendedWordDatabase[currentCase];
+
+				// Убираем глагол из начала ответа для проверки
+				const answerWithoutVerb = answerInput.replace(currentWord.verb.toLowerCase() + ' ', '').trim();
+				const correctAnswer = `${currentWord.adjAnswer} ${currentWord.nounAnswer}`.toLowerCase();
+				const isCorrect = answerWithoutVerb === correctAnswer;
+
+				if (isCorrect) {
+					stats.correct++;
+					showResult('Правильно! Отличная работа! 🎉', 'correct');
+
+					// Удаляем правильно отвеченное слово из доступных
+					const wordIndex = availableWords.findIndex((word) => word === currentWord);
+					if (wordIndex !== -1) {
+						availableWords.splice(wordIndex, 1);
+					}
+
+					// Автоматически переходим к следующему слову через 1 секунду
+					setTimeout(() => {
+						nextWord();
+					}, 1000);
+				} else {
+					currentAttempts++;
+					stats.incorrect++;
+
+					// Показываем иконку ошибки
+					document.getElementById('errorIcon').style.display = 'flex';
+
+					if (currentAttempts >= 3) {
+						// После 3-й попытки показываем правильный ответ
+						showResult(
+							`Правильный ответ: <strong>${currentWord.adjAnswer} ${currentWord.nounAnswer}</strong><br>Нажмите Enter для перехода к следующему слову`,
+							'incorrect'
+						);
+					} else {
+						showResult(`Неправильно. Попытка ${currentAttempts} из 3. Попробуйте еще раз!`, 'incorrect');
+					}
+				}
+
+				stats.total++;
+				updateStats();
+			}
+
+			function showResult(message, type) {
+				const resultDiv = document.getElementById('result');
+				resultDiv.innerHTML = message;
+				resultDiv.className = `result ${type}`;
+				resultDiv.style.display = 'block';
+			}
+
+			function nextWord() {
+				showExercise();
+			}
+
+			function updateStats() {
+				document.getElementById('correctCount').textContent = stats.correct;
+				document.getElementById('incorrectCount').textContent = stats.incorrect;
+				document.getElementById('totalCount').textContent = stats.total;
+
+				const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+				document.getElementById('accuracy').textContent = accuracy + '%';
+			}
+
+			// Добавляем поддержку Enter для проверки
+			document.addEventListener('keypress', function (e) {
+				if (e.key === 'Enter') {
+					if (currentAttempts >= 3) {
+						// После 3-х ошибок Enter переходит к следующему слову
+						nextWord();
+					} else {
+						// Иначе проверяем ответ
+						checkAnswer();
+					}
+				}
+			});
+		</script>
+	</body>
+</html>
