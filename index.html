@@ -24,6 +24,35 @@
 				font-size: 16px;
 			}
 
+			/* Оптимизация для WebView Telegram */
+			@media (max-width: 768px) {
+				body {
+					/* Предотвращение скролла body при фокусе на input */
+					position: relative;
+					overflow-x: hidden;
+				}
+
+				.container {
+					/* Обеспечиваем правильное позиционирование */
+					position: relative;
+					min-height: 100vh;
+				}
+
+				.input-group {
+					/* Улучшенное позиционирование поля ввода */
+					position: relative;
+					z-index: 10;
+				}
+
+				.input-group input {
+					/* Улучшенная видимость в WebView */
+					-webkit-appearance: none;
+					border-radius: 10px;
+					background: white;
+					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+				}
+			}
+
 			body {
 				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -556,8 +585,11 @@
 				}
 
 				.input-group input {
-					padding: 10px;
+					padding: 12px;
 					font-size: 0.95rem;
+					/* Улучшенная видимость на маленьких экранах */
+					border: 2px solid #007bff;
+					background: #f8f9fa;
 				}
 
 				/* Компактная таблица для очень маленьких экранов */
@@ -857,6 +889,14 @@
 				// Устанавливаем глагол как текст в поле ввода с пробелом после
 				document.getElementById('answerInput').value = currentWord.verb + ' ';
 				document.getElementById('answerInput').focus();
+
+				// Автоматическая прокрутка к полю ввода на мобильных устройствах
+				setTimeout(() => {
+					document.getElementById('answerInput').scrollIntoView({
+						behavior: 'smooth',
+						block: 'center'
+					});
+				}, 100);
 			}
 
 			function updateHints(currentWord, caseData) {
@@ -1101,6 +1141,17 @@
 				) {
 					nextWord();
 				}
+			});
+
+			// Автоматическая прокрутка к полю ввода при фокусе
+			document.getElementById('answerInput').addEventListener('focus', function () {
+				setTimeout(() => {
+					this.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center',
+						inline: 'nearest'
+					});
+				}, 300);
 			});
 		</script>
 	</body>
