@@ -246,6 +246,14 @@
 				display: none;
 			}
 
+			.success-message {
+				color: #28a745;
+				font-size: 0.85rem;
+				margin-top: 5px;
+				text-align: center;
+				display: none;
+			}
+
 			.hints-section {
 				display: flex;
 				gap: 15px;
@@ -328,40 +336,6 @@
 				background: #f8d7da;
 				color: #721c24;
 				border: 1px solid #f5c6cb;
-			}
-
-			.stats {
-				background: #e9ecef;
-				padding: 20px;
-				border-radius: 10px;
-				margin-top: 20px;
-				display: flex;
-				justify-content: space-around;
-				flex-wrap: wrap;
-				gap: 15px;
-			}
-
-			/* Улучшенная статистика для мобильных */
-			@media (max-width: 768px) {
-				.stats {
-					background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-					border: 1px solid #dee2e6;
-				}
-			}
-
-			.stat-item {
-				text-align: center;
-			}
-
-			.stat-number {
-				font-size: 2rem;
-				font-weight: bold;
-				color: #007bff;
-			}
-
-			.stat-label {
-				color: #6c757d;
-				font-size: 0.9rem;
 			}
 
 			/* Мобильная оптимизация */
@@ -479,30 +453,6 @@
 					padding: 15px;
 					font-size: 1rem;
 					margin: 10px 0;
-				}
-
-				.stats {
-					padding: 15px;
-					flex-direction: column;
-					gap: 10px;
-				}
-
-				.stat-item {
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-					padding: 10px;
-					background: white;
-					border-radius: 8px;
-					width: 100%;
-				}
-
-				.stat-number {
-					font-size: 1.5rem;
-				}
-
-				.stat-label {
-					font-size: 1rem;
 				}
 			}
 
@@ -689,6 +639,7 @@
 					<div class="input-group">
 						<input type="text" id="answerInput" placeholder="" />
 						<div class="error-message" id="errorMessage"></div>
+						<div class="success-message" id="successMessage"></div>
 					</div>
 				</div>
 
@@ -708,25 +659,6 @@
 				</div>
 
 				<div class="result" id="result"></div>
-
-				<div class="stats" id="stats" style="display: none">
-					<div class="stat-item">
-						<div class="stat-number" id="correctCount">0</div>
-						<div class="stat-label">Правильно</div>
-					</div>
-					<div class="stat-item">
-						<div class="stat-number" id="incorrectCount">0</div>
-						<div class="stat-label">Неправильно</div>
-					</div>
-					<div class="stat-item">
-						<div class="stat-number" id="totalCount">0</div>
-						<div class="stat-label">Всего</div>
-					</div>
-					<div class="stat-item">
-						<div class="stat-number" id="accuracy">0%</div>
-						<div class="stat-label">Точность</div>
-					</div>
-				</div>
 			</div>
 		</div>
 
@@ -771,10 +703,6 @@
 						this.value = 'mixed';
 					}
 				});
-
-				// Показываем статистику
-				document.getElementById('stats').style.display = 'flex';
-				updateStats();
 
 				// Автоматически выбираем смешанный режим при загрузке
 				selectMixedMode();
@@ -892,8 +820,9 @@
 				// Обновляем подсказки
 				updateHints(currentWord, caseData);
 
-				// Скрываем сообщение об ошибке
+				// Скрываем сообщения об ошибке и успехе
 				document.getElementById('errorMessage').style.display = 'none';
+				document.getElementById('successMessage').style.display = 'none';
 
 				// Сбрасываем счетчик попыток
 				currentAttempts = 0;
@@ -943,7 +872,11 @@
 
 				if (isCorrect) {
 					stats.correct++;
-					showResult('Правильно! Отличная работа! 🎉', 'correct');
+
+					// Показываем сообщение об успехе под полем ввода
+					const successMessage = document.getElementById('successMessage');
+					successMessage.textContent = 'Правильно! Отличная работа! 🎉';
+					successMessage.style.display = 'block';
 
 					// Удаляем правильно отвеченное слово из доступных
 					const wordIndex = availableWords.findIndex((word) => word === currentWord);
@@ -965,16 +898,14 @@
 					errorMessage.style.display = 'block';
 
 					if (currentAttempts >= 3) {
-						// После 3-й попытки показываем правильный ответ
-						showResult(
-							`Правильный ответ: <strong>${currentWord.adjAnswer} ${currentWord.nounAnswer}</strong><br>Нажмите Enter для перехода к следующему слову`,
-							'incorrect'
-						);
+						// После 3-й попытки показываем правильный ответ под полем ввода
+						const errorMessage = document.getElementById('errorMessage');
+						errorMessage.innerHTML = `Правильный ответ: <strong>${currentWord.adjAnswer} ${currentWord.nounAnswer}</strong><br>Нажмите Enter для перехода к следующему слову`;
+						errorMessage.style.display = 'block';
 					}
 				}
 
 				stats.total++;
-				updateStats();
 			}
 
 			function showResult(message, type) {
@@ -983,21 +914,13 @@
 				resultDiv.className = `result ${type}`;
 				resultDiv.style.display = 'block';
 
-				// Скрываем сообщение об ошибке при показе результата
+				// Скрываем сообщения об ошибке и успехе при показе результата
 				document.getElementById('errorMessage').style.display = 'none';
+				document.getElementById('successMessage').style.display = 'none';
 			}
 
 			function nextWord() {
 				showExercise();
-			}
-
-			function updateStats() {
-				document.getElementById('correctCount').textContent = stats.correct;
-				document.getElementById('incorrectCount').textContent = stats.incorrect;
-				document.getElementById('totalCount').textContent = stats.total;
-
-				const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-				document.getElementById('accuracy').textContent = accuracy + '%';
 			}
 
 			// Добавляем поддержку Enter для проверки
