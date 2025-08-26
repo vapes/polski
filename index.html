@@ -191,6 +191,12 @@
 					transform: none;
 					box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 				}
+
+				.hint-btn.active {
+					background: #28a745 !important;
+					box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+					transform: none !important;
+				}
 			}
 
 			.case-btn.active {
@@ -388,9 +394,15 @@
 			}
 
 			.hint-btn.active {
-				background: #28a745;
-				box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-				transform: translateY(0);
+				background: #28a745 !important;
+				box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+				transform: translateY(0) !important;
+				border: 2px solid #1e7e34 !important;
+			}
+
+			/* Дополнительные стили для активного состояния */
+			.hint-btn.active:hover {
+				background: #218838 !important;
 			}
 
 			.hints-info {
@@ -862,6 +874,13 @@
 				total: 0
 			};
 
+			// Состояние подсказок
+			let visibleHintsState = {
+				caseHintBlock: false,
+				questionHintBlock: false,
+				ruleHintBlock: false
+			};
+
 			// Инициализация
 			document.addEventListener('DOMContentLoaded', function () {
 				initializeApp();
@@ -878,8 +897,23 @@
 				// Добавляем обработчик для кнопки смешанного режима
 				document.getElementById('mixedBtn').addEventListener('click', selectMixedMode);
 
+				// Добавляем обработчики для кнопок подсказок
+				document.getElementById('caseHintBtn').addEventListener('click', function () {
+					toggleHint('caseHintBlock');
+				});
+
+				document.getElementById('questionHintBtn').addEventListener('click', function () {
+					toggleHint('questionHintBlock');
+				});
+
+				document.getElementById('ruleHintBtn').addEventListener('click', function () {
+					toggleHint('ruleHintBlock');
+				});
+
 				// Автоматически выбираем смешанный режим при загрузке
 				selectMixedMode();
+
+				console.log('Приложение инициализировано');
 			}
 
 			// Добавляем обработчик для выпадающего списка после загрузки DOM
@@ -1009,6 +1043,24 @@
 				document.getElementById('adjective').textContent = currentWord.adjective;
 				document.getElementById('noun').textContent = currentWord.noun;
 
+				// Восстанавливаем состояние подсказок из глобальной переменной
+				console.log('Восстанавливаю состояние подсказок:', visibleHintsState);
+				Object.keys(visibleHintsState).forEach((hintId) => {
+					const block = document.getElementById(hintId);
+					const button = getButtonByHintId(hintId);
+					if (block && button) {
+						if (visibleHintsState[hintId]) {
+							block.classList.add('visible');
+							button.classList.add('active');
+							console.log('Восстановил видимый блок:', hintId);
+						} else {
+							block.classList.remove('visible');
+							button.classList.remove('active');
+							console.log('Восстановил скрытый блок:', hintId);
+						}
+					}
+				});
+
 				// Обновляем подсказки
 				updateHints(currentWord, caseData);
 
@@ -1028,21 +1080,15 @@
 				// Сбрасываем счетчик попыток
 				currentAttempts = 0;
 
-				// Сбрасываем флаг возможности перехода к следующему слову
-				window.canProceedToNext = false;
+				// Флаг canProceedToNext больше не используется
 
 				document.getElementById('wordDisplay').style.display = 'block';
 				document.getElementById('hintsSection').style.display = 'flex';
 				document.getElementById('hintsInfo').style.display = 'flex';
 				document.getElementById('result').style.display = 'none';
 
-				// Скрываем все блоки подсказок по умолчанию и сбрасываем состояние кнопок
-				document.querySelectorAll('.hint-block').forEach((block) => {
-					block.classList.remove('visible');
-				});
-				document.querySelectorAll('.hint-btn').forEach((btn) => {
-					btn.classList.remove('active');
-				});
+				// НЕ сбрасываем состояние подсказок - оставляем как есть
+				// Блоки подсказок сохраняют свое состояние между словами
 
 				// Устанавливаем глагол как текст в поле ввода с пробелом после
 				document.getElementById('answerInput').value = currentWord.verb + ' ';
@@ -1228,6 +1274,10 @@
 				if (isCorrect) {
 					stats.correct++;
 
+					// Скрываем сообщения об ошибках и историю попыток
+					document.getElementById('errorMessage').style.display = 'none';
+					document.getElementById('errorHistory').style.display = 'none';
+
 					// Показываем сообщение об успехе под полем ввода
 					const successMessage = document.getElementById('successMessage');
 					successMessage.textContent = 'Правильно! Отличная работа! 🎉';
@@ -1261,12 +1311,6 @@
 						const errorMessage = document.getElementById('errorMessage');
 						errorMessage.innerHTML = `Правильный ответ: <strong>${currentWord.adjAnswer} ${currentWord.nounAnswer}</strong><br>Нажмите Enter или кликните в любое место для перехода к следующему слову`;
 						errorMessage.style.display = 'block';
-
-						// Небольшая задержка перед возможностью перехода к следующему слову
-						setTimeout(() => {
-							// Добавляем флаг, что можно переходить к следующему слову
-							window.canProceedToNext = true;
-						}, 1000);
 					}
 				}
 
@@ -1304,10 +1348,10 @@
 					// Проверяем, что фокус находится на одном из полей ввода
 					const activeElement = document.activeElement;
 					if (activeElement.id === 'answerInput' || activeElement.id === 'answerInputDesktop') {
-						if (currentAttempts >= 3 && window.canProceedToNext) {
-							// После 3-х ошибок и задержки Enter переходит к следующему слову
+						if (currentAttempts >= 3) {
+							// После 3-х ошибок Enter переходит к следующему слову
 							nextWord();
-						} else if (currentAttempts < 3) {
+						} else {
 							// Иначе проверяем ответ
 							checkAnswer();
 						}
@@ -1317,9 +1361,9 @@
 
 			// Добавляем обработчик для кнопки отправки
 			document.getElementById('submitBtn').addEventListener('click', function () {
-				if (currentAttempts >= 3 && window.canProceedToNext) {
+				if (currentAttempts >= 3) {
 					nextWord();
-				} else if (currentAttempts < 3) {
+				} else {
 					checkAnswer();
 				}
 			});
@@ -1329,7 +1373,6 @@
 				// Проверяем, что это не клик по интерактивным элементам
 				if (
 					currentAttempts >= 3 &&
-					window.canProceedToNext &&
 					!e.target.closest('.hint-btn') &&
 					!e.target.closest('.submit-btn') &&
 					!e.target.closest('#answerInput') &&
@@ -1354,32 +1397,22 @@
 				}, 300);
 			});
 
-			// Обработчики для кнопок подсказок
-			document.getElementById('caseHintBtn').addEventListener('click', function () {
-				toggleHint('caseHintBlock');
-			});
+			// Обработчики для кнопок подсказок будут добавлены в initializeApp
 
-			document.getElementById('questionHintBtn').addEventListener('click', function () {
-				toggleHint('questionHintBlock');
-			});
-
-			document.getElementById('ruleHintBtn').addEventListener('click', function () {
-				toggleHint('ruleHintBlock');
-			});
+			function getButtonByHintId(hintId) {
+				if (hintId === 'caseHintBlock') {
+					return document.getElementById('caseHintBtn');
+				} else if (hintId === 'questionHintBlock') {
+					return document.getElementById('questionHintBtn');
+				} else if (hintId === 'ruleHintBlock') {
+					return document.getElementById('ruleHintBtn');
+				}
+				return null;
+			}
 
 			function toggleHint(hintId) {
 				const hintBlock = document.getElementById(hintId);
-				const hintBtn = document.querySelector(`[onclick*="${hintId}"], [data-hint="${hintId}"]`);
-
-				// Определяем кнопку по ID блока
-				let button;
-				if (hintId === 'caseHintBlock') {
-					button = document.getElementById('caseHintBtn');
-				} else if (hintId === 'questionHintBlock') {
-					button = document.getElementById('questionHintBtn');
-				} else if (hintId === 'ruleHintBlock') {
-					button = document.getElementById('ruleHintBtn');
-				}
+				const button = getButtonByHintId(hintId);
 
 				const isVisible = hintBlock.classList.contains('visible');
 
@@ -1387,9 +1420,13 @@
 				if (isVisible) {
 					hintBlock.classList.remove('visible');
 					button.classList.remove('active');
+					visibleHintsState[hintId] = false;
+					console.log('Скрыл блок:', hintId, 'состояние:', visibleHintsState);
 				} else {
 					hintBlock.classList.add('visible');
 					button.classList.add('active');
+					visibleHintsState[hintId] = true;
+					console.log('Показал блок:', hintId, 'состояние:', visibleHintsState);
 				}
 			}
 		</script>
