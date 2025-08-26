@@ -53,6 +53,70 @@
 				}
 			}
 
+			.input-row {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				width: 100%;
+				max-width: 400px;
+				justify-content: center;
+			}
+
+			.submit-btn {
+				background: #007bff;
+				color: white;
+				border: none;
+				border-radius: 8px;
+				padding: 12px 16px;
+				font-size: 18px;
+				cursor: pointer;
+				transition: background-color 0.3s;
+				flex-shrink: 0;
+				display: none; /* Скрываем на десктопе по умолчанию */
+			}
+
+			/* На десктопе скрываем input-row, чтобы поле было по центру */
+			.input-row {
+				display: none;
+			}
+
+			/* Показываем input-row только на мобильных */
+			@media (max-width: 768px) {
+				.input-row {
+					display: flex;
+				}
+
+				.desktop-input {
+					display: none;
+				}
+			}
+
+			/* На десктопе скрываем input-row и показываем desktop-input */
+			.desktop-input {
+				width: 100%;
+				max-width: 400px;
+				padding: 15px 20px;
+				border: 2px solid #e9ecef;
+				border-radius: 10px;
+				font-size: 1.1rem;
+				text-align: center;
+				transition: border-color 0.3s;
+			}
+
+			.desktop-input:focus {
+				outline: none;
+				border-color: #007bff;
+				box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+			}
+
+			.submit-btn:hover {
+				background: #0056b3;
+			}
+
+			.submit-btn:active {
+				background: #004085;
+			}
+
 			body {
 				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -275,6 +339,23 @@
 				display: none;
 			}
 
+			.error-history {
+				margin-top: 10px;
+				font-size: 0.8rem;
+				line-height: 1.4;
+			}
+
+			.error-history-item {
+				margin-bottom: 5px;
+				color: #dc3545;
+				font-weight: 500;
+				font-size: 0.9rem;
+			}
+
+			.error-history-item:last-child {
+				margin-bottom: 0;
+			}
+
 			.success-message {
 				color: #28a745;
 				font-size: 0.85rem;
@@ -306,6 +387,12 @@
 				transform: translateY(-1px);
 			}
 
+			.hint-btn.active {
+				background: #28a745;
+				box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+				transform: translateY(0);
+			}
+
 			.hints-info {
 				margin: 15px 0;
 				display: flex;
@@ -321,9 +408,10 @@
 				font-size: 0.9rem;
 				line-height: 1.4;
 				display: none;
+				margin-bottom: 5px;
 			}
 
-			.hint-block.active {
+			.hint-block.visible {
 				display: block;
 			}
 
@@ -464,6 +552,21 @@
 				.input-group input {
 					padding: 12px;
 					font-size: 1rem;
+				}
+
+				.input-row {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					width: 100%;
+				}
+
+				.submit-btn {
+					padding: 12px 14px;
+					font-size: 16px;
+					border-radius: 6px;
+					flex-shrink: 0;
+					display: block; /* Показываем на мобильных */
 				}
 
 				.hints-section {
@@ -676,6 +779,7 @@
 					flex: 1;
 					min-width: 200px;
 					max-width: 300px;
+					margin-bottom: 3px;
 				}
 			}
 		</style>
@@ -719,9 +823,14 @@
 						<div class="word" id="noun">Существительное</div>
 					</div>
 					<div class="input-group">
-						<input type="text" id="answerInput" placeholder="" />
+						<div class="input-row">
+							<input type="text" id="answerInput" placeholder="" />
+							<button type="button" id="submitBtn" class="submit-btn">✓</button>
+						</div>
+						<input type="text" id="answerInputDesktop" placeholder="" class="desktop-input" />
 						<div class="error-message" id="errorMessage"></div>
 						<div class="success-message" id="successMessage"></div>
+						<div class="error-history" id="errorHistory" style="display: none"></div>
 					</div>
 				</div>
 
@@ -907,17 +1016,39 @@
 				document.getElementById('errorMessage').style.display = 'none';
 				document.getElementById('successMessage').style.display = 'none';
 
+				// Очищаем историю ошибок
+				const errorHistory = document.getElementById('errorHistory');
+				errorHistory.innerHTML = '';
+				errorHistory.style.display = 'none';
+
+				// Очищаем оба поля ввода
+				document.getElementById('answerInput').value = '';
+				document.getElementById('answerInputDesktop').value = '';
+
 				// Сбрасываем счетчик попыток
 				currentAttempts = 0;
+
+				// Сбрасываем флаг возможности перехода к следующему слову
+				window.canProceedToNext = false;
 
 				document.getElementById('wordDisplay').style.display = 'block';
 				document.getElementById('hintsSection').style.display = 'flex';
 				document.getElementById('hintsInfo').style.display = 'flex';
 				document.getElementById('result').style.display = 'none';
 
+				// Скрываем все блоки подсказок по умолчанию и сбрасываем состояние кнопок
+				document.querySelectorAll('.hint-block').forEach((block) => {
+					block.classList.remove('visible');
+				});
+				document.querySelectorAll('.hint-btn').forEach((btn) => {
+					btn.classList.remove('active');
+				});
+
 				// Устанавливаем глагол как текст в поле ввода с пробелом после
 				document.getElementById('answerInput').value = currentWord.verb + ' ';
+				document.getElementById('answerInputDesktop').value = currentWord.verb + ' ';
 				document.getElementById('answerInput').focus();
+				document.getElementById('answerInputDesktop').focus();
 
 				// Автоматическая прокрутка к полю ввода на мобильных устройствах
 				setTimeout(() => {
@@ -930,17 +1061,13 @@
 
 			function updateHints(currentWord, caseData) {
 				// Обновляем подсказку падежа
-				document.getElementById('caseHintBlock').innerHTML = `<h4>💡 Падеж</h4>${caseData.name}`;
+				document.getElementById('caseHintBlock').innerHTML = `${caseData.name}`;
 
 				// Обновляем подсказку вопроса (вопросы на польском)
-				document.getElementById('questionHintBlock').innerHTML = `<h4>❓ Вопрос</h4>${getCaseQuestions(
-					caseData.name
-				)}`;
+				document.getElementById('questionHintBlock').innerHTML = `${getCaseQuestions(caseData.name)}`;
 
 				// Обновляем подсказку правила (окончания) - используем innerHTML для таблицы
-				document.getElementById('ruleHintBlock').innerHTML = `<h4>📚 Правило</h4>${getCaseEndings(
-					caseData.name
-				)}`;
+				document.getElementById('ruleHintBlock').innerHTML = `${getCaseEndings(caseData.name)}`;
 			}
 
 			function getCaseQuestions(caseName) {
@@ -1084,7 +1211,11 @@
 			}
 
 			function checkAnswer() {
-				const answerInput = document.getElementById('answerInput').value.trim().toLowerCase();
+				// Определяем, какое поле ввода активно (мобильное или десктопное)
+				const isMobile = window.innerWidth <= 768;
+				const answerInput = isMobile
+					? document.getElementById('answerInput').value.trim().toLowerCase()
+					: document.getElementById('answerInputDesktop').value.trim().toLowerCase();
 
 				// Используем глобальную переменную currentWord
 				const caseData = isMixedMode ? currentWord.caseInfo : extendedWordDatabase[currentCase];
@@ -1121,11 +1252,21 @@
 					errorMessage.textContent = `Неправильно. Попытка ${currentAttempts} из 3. Попробуйте еще раз!`;
 					errorMessage.style.display = 'block';
 
+					// Добавляем ошибку в историю
+					const userInput = answerInput.replace(currentWord.verb.toLowerCase() + ' ', '').trim();
+					addErrorToHistory(userInput, currentAttempts);
+
 					if (currentAttempts >= 3) {
 						// После 3-й попытки показываем правильный ответ под полем ввода
 						const errorMessage = document.getElementById('errorMessage');
 						errorMessage.innerHTML = `Правильный ответ: <strong>${currentWord.adjAnswer} ${currentWord.nounAnswer}</strong><br>Нажмите Enter или кликните в любое место для перехода к следующему слову`;
 						errorMessage.style.display = 'block';
+
+						// Небольшая задержка перед возможностью перехода к следующему слову
+						setTimeout(() => {
+							// Добавляем флаг, что можно переходить к следующему слову
+							window.canProceedToNext = true;
+						}, 1000);
 					}
 				}
 
@@ -1147,16 +1288,39 @@
 				showExercise();
 			}
 
+			function addErrorToHistory(userInput, attemptNumber) {
+				const errorHistory = document.getElementById('errorHistory');
+				const errorItem = document.createElement('div');
+				errorItem.className = 'error-history-item';
+				errorItem.innerHTML = `${userInput}`;
+
+				errorHistory.appendChild(errorItem);
+				errorHistory.style.display = 'block';
+			}
+
 			// Добавляем поддержку Enter для проверки
 			document.addEventListener('keypress', function (e) {
 				if (e.key === 'Enter') {
-					if (currentAttempts >= 3) {
-						// После 3-х ошибок Enter переходит к следующему слову
-						nextWord();
-					} else {
-						// Иначе проверяем ответ
-						checkAnswer();
+					// Проверяем, что фокус находится на одном из полей ввода
+					const activeElement = document.activeElement;
+					if (activeElement.id === 'answerInput' || activeElement.id === 'answerInputDesktop') {
+						if (currentAttempts >= 3 && window.canProceedToNext) {
+							// После 3-х ошибок и задержки Enter переходит к следующему слову
+							nextWord();
+						} else if (currentAttempts < 3) {
+							// Иначе проверяем ответ
+							checkAnswer();
+						}
 					}
+				}
+			});
+
+			// Добавляем обработчик для кнопки отправки
+			document.getElementById('submitBtn').addEventListener('click', function () {
+				if (currentAttempts >= 3 && window.canProceedToNext) {
+					nextWord();
+				} else if (currentAttempts < 3) {
+					checkAnswer();
 				}
 			});
 
@@ -1165,8 +1329,11 @@
 				// Проверяем, что это не клик по интерактивным элементам
 				if (
 					currentAttempts >= 3 &&
+					window.canProceedToNext &&
 					!e.target.closest('.hint-btn') &&
+					!e.target.closest('.submit-btn') &&
 					!e.target.closest('#answerInput') &&
+					!e.target.closest('#answerInputDesktop') &&
 					!e.target.closest('.case-btn') &&
 					!e.target.closest('.mixed-btn') &&
 					!e.target.closest('.case-select') &&
@@ -1202,16 +1369,27 @@
 
 			function toggleHint(hintId) {
 				const hintBlock = document.getElementById(hintId);
-				const isActive = hintBlock.classList.contains('active');
+				const hintBtn = document.querySelector(`[onclick*="${hintId}"], [data-hint="${hintId}"]`);
 
-				// Скрываем все блоки подсказок
-				document.querySelectorAll('.hint-block').forEach((block) => {
-					block.classList.remove('active');
-				});
+				// Определяем кнопку по ID блока
+				let button;
+				if (hintId === 'caseHintBlock') {
+					button = document.getElementById('caseHintBtn');
+				} else if (hintId === 'questionHintBlock') {
+					button = document.getElementById('questionHintBtn');
+				} else if (hintId === 'ruleHintBlock') {
+					button = document.getElementById('ruleHintBtn');
+				}
 
-				// Показываем выбранный блок, если он не был активен
-				if (!isActive) {
-					hintBlock.classList.add('active');
+				const isVisible = hintBlock.classList.contains('visible');
+
+				// Переключаем видимость блока
+				if (isVisible) {
+					hintBlock.classList.remove('visible');
+					button.classList.remove('active');
+				} else {
+					hintBlock.classList.add('visible');
+					button.classList.add('active');
 				}
 			}
 		</script>
